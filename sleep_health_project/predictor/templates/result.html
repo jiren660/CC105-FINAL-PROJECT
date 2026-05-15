@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results | SleepHealth</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-deep: #020617;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            
+            {% if result == 'None' %}
+                --accent: #10b981; /* Neon Green */
+                --accent-glow: rgba(16, 185, 129, 0.5);
+            {% else %}
+                --accent: #ff4d4d; /* Neon Red */
+                --accent-glow: rgba(255, 77, 77, 0.5);
+            {% endif %}
+        }
+
+        body { 
+            background-color: var(--bg-deep);
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            color-scheme: dark;
+        }
+
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+        .particle {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.1; animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .dashboard-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 24px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .primary-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            padding: 40px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .gauge-wrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin-bottom: 30px;
+        }
+
+        .gauge-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .gauge-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 12; }
+        .gauge-fill {
+            fill: none; stroke: var(--accent); stroke-width: 12;
+            stroke-linecap: round; stroke-dasharray: 440;
+            stroke-dashoffset: calc(440 - (440 * {{ efficiency }}) / 100);
+            transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 0 10px var(--accent));
+        }
+
+        .gauge-label-box {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .efficiency-val { font-size: 3rem; font-weight: 800; display: block; line-height: 1; }
+        .efficiency-text { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+
+        .result-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.05em;
+        }
+
+        .indicators-row {
+            display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+        }
+        .ind-pill {
+            background: var(--glass);
+            padding: 6px 12px; border-radius: 100px;
+            font-size: 0.7rem; font-weight: 700; border: 1px solid var(--glass-border);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+        }
+
+        .bento-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 24px;
+            border: 1px solid var(--glass-border);
+            transition: 0.4s;
+        }
+
+        .bento-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .card-wide { grid-column: span 2; }
+
+        .card-label {
+            font-size: 0.65rem; font-weight: 700; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+            display: block;
+        }
+
+        .card-value { font-size: 1.4rem; font-weight: 700; }
+
+        .insight-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px; padding: 20px; margin-top: 10px;
+            font-size: 0.9rem; line-height: 1.6; color: var(--text-dim);
+        }
+
+        .btn-retake {
+            background: var(--accent);
+            color: var(--bg-deep) !important;
+            padding: 16px 32px; border-radius: 20px;
+            font-weight: 800; text-decoration: none;
+            display: inline-block; width: 100%; text-align: center;
+            margin-top: auto; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .btn-retake:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .stat-icon { color: var(--accent); margin-right: 10px; }
+
+        .vital-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+
+        @media (max-width: 992px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; }
+            body { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="particles" id="particles-js"></div>
+
+    <div class="dashboard-wrapper">
+        
+        <!-- Result Panel -->
+        <div class="primary-panel">
+            <div class="status-header">Assessment Complete</div>
+            
+            <div class="gauge-wrap">
+                <svg class="gauge-svg" viewBox="0 0 160 160">
+                    <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                    <circle class="gauge-fill" cx="80" cy="80" r="70"></circle>
+                </svg>
+                <div class="gauge-label-box">
+                    <span class="efficiency-val">{{ efficiency }}%</span>
+                    <span class="efficiency-text">Efficiency</span>
+                </div>
+            </div>
+
+            <h1 class="result-title">{% if result == 'None' %}Healthy{% else %}{{ result }}{% endif %}</h1>
+            
+            <div class="indicators-row mb-4">
+                {% for ind in indicators %}
+                <div class="ind-pill"><i class="fas {{ ind.icon }} stat-icon"></i> {{ ind.label }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="insight-box text-start">
+                <strong style="color: white; display: block; margin-bottom: 5px;">Understanding your result</strong>
+                {% if result == 'None' %}
+                    Your metrics suggest a balanced sleep cycle and a healthy lifestyle. Your heart rate and stress levels are within a consistent range for restorative rest.
+                {% elif result == 'Insomnia' %}
+                    The model identified patterns often associated with difficulty falling or staying asleep. This frequently correlates with high stress levels or irregular sleep durations.
+                {% else %}
+                    The assessment shows indicators consistent with sleep-disordered breathing. This often aligns with specific Blood Pressure and BMI metrics analyzed by the model.
+                {% endif %}
+            </div>
+
+            <a href="{% url 'home' %}" class="btn-retake mt-4">
+                <i class="fas fa-redo-alt me-2"></i> Retake Assessment
+            </a>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="data-grid">
+            
+            <!-- Vitals Card -->
+            <div class="bento-card">
+                <span class="card-label">Vital Signs</span>
+                <div class="vital-row">
+                    <span><i class="fas fa-heart-pulse stat-icon"></i> BP</span>
+                    <span class="card-value">{{ user_data.systolic }}/{{ user_data.diastolic }}</span>
+                </div>
+                <div class="vital-row">
+                    <span><i class="fas fa-wave-square stat-icon"></i> Stress</span>
+                    <span class="card-value">{{ user_data.stress }}/10</span>
+                </div>
+            </div>
+
+            <!-- Activity Card -->
+            <div class="bento-card">
+                <span class="card-label">Activity</span>
+                <div class="vital-row">
+                    <span><i class="fas fa-walking stat-icon"></i> Steps</span>
+                    <span class="card-value">{{ user_data.steps }}</span>
+                </div>
+                <div class="vital-row">
+                    <span><i class="fas fa-fire stat-icon"></i> Exercise</span>
+                    <span class="card-value">{{ user_data.activity }}m</span>
+                </div>
+            </div>
+
+            <!-- Sleep Metrics Card -->
+            <div class="bento-card card-wide">
+                <span class="card-label">Sleep Metrics</span>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="vital-row">
+                            <span><i class="fas fa-clock stat-icon"></i> Duration</span>
+                            <span class="card-value">{{ user_data.duration }} hrs</span>
+                        </div>
+                    </div>
+                    <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.1);">
+                        <div class="vital-row ps-3">
+                            <span><i class="fas fa-star stat-icon"></i> Quality</span>
+                            <span class="card-value">{{ user_data.quality }}/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="bento-card card-wide">
+                <span class="card-label">Profile</span>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <span class="card-value">{{ user_data.age }} Years</span>
+                        <span class="card-label" style="margin:0;">Age</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span class="card-value">{{ user_data.gender }}</span>
+                        <span class="card-label" style="margin:0;">Gender</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="card-value">{{ user_data.bmi }}</span>
+                        <span class="card-label" style="margin:0;">BMI Category</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation Card -->
+            <div class="bento-card card-wide" style="background: rgba(255,255,255,0.02);">
+                <span class="card-label">Recommendation</span>
+                <p class="mb-0" style="font-size: 0.95rem; color: var(--text-dim);">
+                    {% if result == 'None' %}
+                        Keep maintaining your consistent sleep schedule and physical activity.
+                    {% elif result == 'Insomnia' %}
+                        Try relaxing techniques before bed and consider reducing caffeine or screen time.
+                    {% else %}
+                        It is highly recommended to consult a healthcare professional for a formal clinical evaluation.
+                    {% endif %}
+                </p>
+                <p class="mt-2 small text-muted">This assessment is based on a statistical model for educational purposes only. It is not a medical diagnosis.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('particles-js');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = Math.random() * 5 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = Math.random() * 5 + 5 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(particle);
+        }
+    </script>
+</body>
+</html>

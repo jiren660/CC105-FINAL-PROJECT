@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SleepHealth | Assessment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-deep: #020617;
+            --primary: #6366f1; /* Neon Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.5);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        body { 
+            background-color: var(--bg-deep);
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+            color-scheme: dark;
+        }
+
+        /* Animated Particles Background */
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none;
+        }
+        .particle {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.1; animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        /* Welcome Section */
+        #welcome-section {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            background: var(--bg-deep);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .welcome-content { text-align: center; max-width: 600px; padding: 20px; }
+
+        .icon-box {
+            width: 100px; height: 100px; background: var(--glass);
+            color: var(--primary); border-radius: 30px; display: flex;
+            align-items: center; justify-content: center; margin: 0 auto 30px;
+            font-size: 3rem; border: 1px solid var(--glass-border);
+            box-shadow: 0 0 30px var(--primary-glow);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px var(--primary-glow); }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px var(--primary-glow); }
+        }
+
+        /* Modern Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            border-radius: 40px;
+            padding: 50px;
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-label { 
+            font-weight: 700; font-size: 0.75rem; color: var(--text-dim); 
+            text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 12px;
+        }
+        
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: 18px;
+            color: #ffffff !important;
+            padding: 16px 22px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .form-select option {
+            background-color: #1e1b4b; 
+            color: white;
+            padding: 10px;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-control:focus, .form-select:focus { 
+            border-color: var(--primary) !important; 
+            box-shadow: 0 0 15px var(--primary-glow) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            outline: none;
+        }
+
+        /* Step Indicators */
+        .step-dots { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: 0.4s; }
+        .dot.active { background: var(--primary); width: 35px; border-radius: 10px; box-shadow: 0 0 15px var(--primary-glow); }
+
+        .btn-neon { 
+            background: var(--primary);
+            color: var(--bg-deep) !important;
+            padding: 16px 32px; border-radius: 20px;
+            font-weight: 800; border: none;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .btn-neon:hover { 
+            transform: translateY(-5px);
+            filter: brightness(1.2);
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .btn-back {
+            background: var(--glass);
+            color: white !important;
+            border: 1px solid var(--glass-border);
+            padding: 16px 32px; border-radius: 20px;
+            font-weight: 800; transition: 0.3s;
+        }
+
+        .hidden { display: none !important; }
+        .is-invalid { border-color: #ff4d4d !important; box-shadow: 0 0 10px rgba(255,77,77,0.5) !important; }
+
+        @media (max-width: 768px) {
+            .glass-card { padding: 30px 20px; }
+            .btn-neon, .btn-back { width: 100%; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="particles" id="particles-js"></div>
+
+    <div id="welcome-section">
+        <div class="welcome-content">
+            <div class="icon-box"><i class="fas fa-moon"></i></div>
+            <h1 class="fw-bold mb-3" style="font-size: 3.5rem; letter-spacing: -0.04em;">SleepHealth</h1>
+            <p class="text-dim fs-5 mb-5">Take a relaxing assessment to understand your sleep health better.</p>
+            <button class="btn btn-neon px-5" onclick="startApp()">Begin Assessment <i class="fas fa-sparkles ms-2"></i></button>
+        </div>
+    </div>
+
+    <div id="main-app" class="container py-5 hidden">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold h3 text-white mb-2">Sleep Assessment</h2>
+                    <p class="text-dim small uppercase tracking-widest">Step <span id="current-step-num">1</span> of 3</p>
+                </div>
+
+                <div class="step-dots">
+                    <div id="dot-1" class="dot active"></div>
+                    <div id="dot-2" class="dot"></div>
+                    <div id="dot-3" class="dot"></div>
+                </div>
+
+                <div class="glass-card">
+                    <form action="{% url 'predict' %}" method="POST" id="mainForm">
+                        {% csrf_token %}
+
+                        <!-- Step 1: Basics -->
+                        <div id="step-1" class="form-step">
+                            <h3 class="h5 fw-bold mb-4" style="color: var(--primary);">Tell us about yourself</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">How old are you?</label>
+                                    <input type="number" name="age" class="form-control" placeholder="Age" min="1" max="120" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gender</label>
+                                    <select name="gender" class="form-select" required>
+                                        <option value="" disabled selected>Select...</option>
+                                        {% for g in genders %}<option value="{{g}}">{{g}}</option>{% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Current Occupation</label>
+                                    <select name="occupation" id="occSelect" class="form-select" onchange="checkOccupation(this)" required>
+                                        <option value="" disabled selected>Choose your occupation...</option>
+                                        {% for occ in occupations %}<option value="{{occ}}">{{occ}}</option>{% endfor %}
+                                        <option value="Student">Student</option>
+                                        <option value="Others">Others (Please specify)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-5 text-end">
+                                <button type="button" class="btn-neon px-5" onclick="validateStep(1, 2)">Next Step <i class="fas fa-arrow-right ms-2"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Vitals -->
+                        <div id="step-2" class="form-step hidden">
+                            <h3 class="h5 fw-bold mb-4" style="color: var(--primary);">Sleep & Vital Signs</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Sleep Duration (Hours)</label>
+                                    <input type="number" step="0.1" name="duration" class="form-control" placeholder="e.g. 7.5" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Quality (1-10)</label>
+                                    <input type="number" name="quality" class="form-control" placeholder="1 = Poor, 10 = Deep" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Blood Pressure (mmHg)</label>
+                                    <div class="row g-2">
+                                        <div class="col-6"><input type="number" name="systolic" class="form-control" placeholder="Systolic" required></div>
+                                        <div class="col-6"><input type="number" name="diastolic" class="form-control" placeholder="Diastolic" required></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Stress Level (1-10)</label>
+                                    <input type="number" name="stress" class="form-control" placeholder="1 = Calm, 10 = Stressed" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Heart Rate (BPM)</label>
+                                    <input type="number" name="heart_rate" class="form-control" placeholder="e.g. 72" required>
+                                </div>
+                            </div>
+                            <div class="mt-5 d-flex gap-3">
+                                <button type="button" class="btn-back w-50" onclick="nextStep(1)">Back</button>
+                                <button type="button" class="btn-neon w-50" onclick="validateStep(2, 3)">Continue</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Activity -->
+                        <div id="step-3" class="form-step hidden">
+                            <h3 class="h5 fw-bold mb-4" style="color: var(--primary);">Daily Activity Level</h3>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Daily Steps</label>
+                                    <input type="number" name="steps" class="form-control" placeholder="e.g. 8000" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Exercise (Mins/Day)</label>
+                                    <input type="number" name="activity" class="form-control" placeholder="e.g. 30" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">BMI Category</label>
+                                    <select name="bmi" class="form-select" required>
+                                        <option value="" disabled selected>Choose category...</option>
+                                        {% for b in bmi_categories %}<option value="{{b}}">{{b}}</option>{% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-5 d-flex gap-3">
+                                <button type="button" class="btn-back w-50" onclick="nextStep(2)">Back</button>
+                                <button type="submit" class="btn-neon w-50">Complete Assessment</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startApp() {
+            const welcome = document.getElementById('welcome-section');
+            welcome.style.opacity = '0';
+            setTimeout(() => {
+                welcome.style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+            }, 800);
+        }
+
+        function validateStep(current, next) {
+            const stepDiv = document.getElementById('step-' + current);
+            const inputs = stepDiv.querySelectorAll('input[required], select[required]');
+            let valid = true;
+
+            inputs.forEach(input => {
+                if(!input.checkValidity()) {
+                    input.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            if(valid) nextStep(next);
+        }
+
+        function nextStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.dot').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-' + step).classList.remove('hidden');
+            document.getElementById('dot-' + step).classList.add('active');
+            document.getElementById('current-step-num').textContent = step;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Particle System
+        const container = document.getElementById('particles-js');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.width = Math.random() * 4 + 2 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = Math.random() * 5 + 5 + 's';
+            particle.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
